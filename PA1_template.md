@@ -1,16 +1,12 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 by Rajesh Pedamale
 github repo with RMarkdown source code:
 https://github.com/rajpedamale/RepData_PeerAssessment1
 
 ## Loading and preprocessing the data
-```{r echo = TRUE}
+
+```r
 filename <- "activity.zip"
 
 if (!file.exists(filename)){
@@ -22,11 +18,22 @@ activity <- read.csv("activity.csv", colClasses = c("numeric", "character", "num
 head(activity)
 ```
 
+```
+##   steps       date interval
+## 1    NA 2012-10-01        0
+## 2    NA 2012-10-01        5
+## 3    NA 2012-10-01       10
+## 4    NA 2012-10-01       15
+## 5    NA 2012-10-01       20
+## 6    NA 2012-10-01       25
+```
+
 ## What is the mean total number of steps taken per day?
 
 1. Make a histogram of the total number of steps taken each day
 
-```{r}
+
+```r
 steps.date <- aggregate(steps ~ date, data=activity, FUN=sum, na.rm=TRUE)
 barplot(steps.date$steps, 
         names.arg=steps.date$date, 
@@ -35,12 +42,26 @@ barplot(steps.date$steps,
         main="Total number of steps per day\n(NA removed)")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
+
 2. Calculate and report the **mean** and **median** total number of
    steps taken per day
 
-```{r}
+
+```r
 mean(steps.date$steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(steps.date$steps)
+```
+
+```
+## [1] 10765
 ```
 
 ## What is the average daily activity pattern?
@@ -49,18 +70,26 @@ median(steps.date$steps)
    interval (x-axis) and the average number of steps taken, averaged
    across all days (y-axis)
 
-```{r}
+
+```r
 steps.interval <- aggregate(steps ~ interval, data=activity, FUN=mean)
 plot(steps.interval, 
      type="l", 
      main="Average daily activity pattern\n(NA removed)")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+
 2. Which 5-minute interval, on average across all the days in the
    dataset, contains the maximum number of steps?
 
-```{r}
+
+```r
 steps.interval$interval[which.max(steps.interval$steps)]
+```
+
+```
+## [1] 835
 ```
 
 
@@ -69,8 +98,13 @@ steps.interval$interval[which.max(steps.interval$steps)]
 1. Calculate and report the total number of missing values in the
    dataset (i.e. the total number of rows with `NA`s)
 
-```{r}
+
+```r
 sum(is.na(activity))
+```
+
+```
+## [1] 2304
 ```
 
 2. Devise a strategy for filling in all of the missing values in the
@@ -84,7 +118,8 @@ values.
 3. Create a new dataset that is equal to the original dataset but with
    the missing data filled in.
 
-```{r}
+
+```r
 activity <- merge(activity, steps.interval, by="interval", suffixes=c("",".y"))
 activity.is.na <- is.na(activity$steps)
 activity$steps[activity.is.na] <- activity$steps.y[activity.is.na]
@@ -97,15 +132,32 @@ activity <- activity[,c(1:3)]
    the first part of the assignment? What is the impact of imputing
    missing data on the estimates of the total daily number of steps?
 
-```{r}
+
+```r
 steps.date <- aggregate(steps ~ date, data=activity, FUN=sum)
 barplot(steps.date$steps, 
         names.arg=steps.date$date, 
         xlab="date", 
         ylab="steps",
         main="Total number of steps per day\n(Imputed)")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png) 
+
+```r
 mean(steps.date$steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(steps.date$steps)
+```
+
+```
+## [1] 10766.19
 ```
 
 The mean and median values of the imputed data are very close to the 
@@ -120,7 +172,8 @@ daily number of steps.
    "weekday" and "weekend" indicating whether a given date is a
    weekday or weekend day.
 
-```{r, cache=TRUE}
+
+```r
 daytype <- function(date) {
     if (weekdays(as.Date(date)) %in% c("Saturday", "Sunday")) {
         "weekend"
@@ -136,7 +189,8 @@ activity$daytype <- as.factor(sapply(activity$date, daytype))
    taken, averaged across all weekday days or weekend days
    (y-axis).
 
-```{r}
+
+```r
 par(mfrow=c(2,1))
 for (type in c("weekend", "weekday")) {
     steps.type <- aggregate(steps ~ interval,
@@ -146,6 +200,8 @@ for (type in c("weekend", "weekday")) {
     plot(steps.type, type="l", main=type)
 }
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-10-1.png) 
 
 Weekends have activity spread throughout the day.
 Weekdays start of with higher activity and has lesser activity during 
